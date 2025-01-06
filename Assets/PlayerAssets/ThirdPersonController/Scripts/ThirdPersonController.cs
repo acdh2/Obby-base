@@ -44,8 +44,6 @@ namespace StarterAssets
         public float Gravity = -15.0f;
 
         [Space(10)]
-        [Tooltip("Time required to pass before being able to jump again. Set to 0f to instantly jump again")]
-        public float JumpTimeout = 0.50f;
 
         [Tooltip("Time required to pass before entering the fall state. Useful for walking down stairs")]
         public float FallTimeout = 0.15f;
@@ -95,7 +93,6 @@ namespace StarterAssets
         private float _terminalVelocity = 53.0f;
 
         // timeout deltatime
-        private float _jumpTimeoutDelta;
         private float _fallTimeoutDelta;
 
         // animation IDs
@@ -116,6 +113,8 @@ namespace StarterAssets
         private const float _threshold = 0.01f;
 
         private bool _hasAnimator;
+
+        private bool _jumpWasPressed = false;
 
         private bool IsCurrentDeviceMouse
         {
@@ -155,7 +154,6 @@ namespace StarterAssets
             AssignAnimationIDs();
 
             // reset our timeouts on start
-            _jumpTimeoutDelta = JumpTimeout;
             _fallTimeoutDelta = FallTimeout;
         }
 
@@ -210,7 +208,7 @@ namespace StarterAssets
                 float deltaTimeMultiplier = IsCurrentDeviceMouse ? 1.0f : Time.deltaTime;
 
                 _cinemachineTargetYaw += _input.look.x * deltaTimeMultiplier * CameraLookAroundSpeed;
-                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier * CameraLookAroundSpeed;
+                _cinemachineTargetPitch += _input.look.y * deltaTimeMultiplier * CameraLookAroundSpeed * 0.75f;
             }
 
             // clamp our rotations so our values are limited 360 degrees
@@ -292,6 +290,13 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
+            bool jumpPressedDown = false;
+
+            if (_input.jump && !_jumpWasPressed) {
+                jumpPressedDown = true;
+            }
+            _jumpWasPressed = _input.jump;
+
             if (_groundedTimeout > 0.0f)
             {
                 _groundedTimeout -= Time.deltaTime;
@@ -313,8 +318,9 @@ namespace StarterAssets
                 }
 
                 // Jump
-                if (_input.jump && _jumpTimeoutDelta <= 0.0f)
+                if (jumpPressedDown)
                 {
+                    _jumpWasPressed = false;
                     _groundedTimeout = 0.0f;
 
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
@@ -326,18 +332,9 @@ namespace StarterAssets
                         _animator.SetBool(_animIDJump, true);
                     }
                 }
-
-                // jump timeout
-                if (_jumpTimeoutDelta >= 0.0f)
-                {
-                    _jumpTimeoutDelta -= Time.deltaTime;
-                }
             }
             else
             {
-                // reset the jump timeout timer
-                _jumpTimeoutDelta = JumpTimeout;
-
                 // fall timeout
                 if (_fallTimeoutDelta >= 0.0f)
                 {
@@ -353,7 +350,7 @@ namespace StarterAssets
                 }
 
                 // if we are not grounded, do not jump
-                _input.jump = false;
+                //_input.jump = false;
             }
 
             // apply gravity over time if under terminal (multiply by delta time twice to linearly speed up over time)
