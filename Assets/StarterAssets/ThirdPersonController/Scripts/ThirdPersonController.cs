@@ -1,4 +1,5 @@
-﻿ using UnityEngine;
+﻿using System.Runtime.InteropServices;
+using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
 #endif
@@ -36,6 +37,9 @@ namespace StarterAssets
         [Tooltip("The height the player can jump")]
         public float JumpHeight = 1.2f;
 
+        [Tooltip("How long a player can jump after being on a platform")]
+        public float JumpDetectionTimeout = 0.2f;
+
         [Tooltip("The character uses its own gravity value. The engine default is -9.81f")]
         public float Gravity = -15.0f;
 
@@ -48,7 +52,7 @@ namespace StarterAssets
 
         [Header("Player Grounded")]
         [Tooltip("If the character is grounded or not. Not part of the CharacterController built in grounded check")]
-        public bool Grounded = true;
+        private float _groundedTimeout = 0f;
 
         [Tooltip("Useful for rough ground")]
         public float GroundedOffset = -0.14f;
@@ -183,13 +187,17 @@ namespace StarterAssets
             // set sphere position, with offset
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
                 transform.position.z);
-            Grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
+            bool grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
                 QueryTriggerInteraction.Ignore);
+
+            if (grounded) {
+                _groundedTimeout = JumpDetectionTimeout;
+            }
 
             // update animator if using character
             if (_hasAnimator)
             {
-                _animator.SetBool(_animIDGrounded, Grounded);
+                _animator.SetBool(_animIDGrounded, grounded);
             }
         }
 
@@ -284,8 +292,10 @@ namespace StarterAssets
 
         private void JumpAndGravity()
         {
-            if (Grounded)
+            if (_groundedTimeout > 0.0f)
             {
+                _groundedTimeout -= Time.deltaTime;
+
                 // reset the fall timeout timer
                 _fallTimeoutDelta = FallTimeout;
 
@@ -305,6 +315,8 @@ namespace StarterAssets
                 // Jump
                 if (_input.jump && _jumpTimeoutDelta <= 0.0f)
                 {
+                    _groundedTimeout = 0.0f;
+
                     // the square root of H * -2 * G = how much velocity needed to reach desired height
                     _verticalVelocity = Mathf.Sqrt(JumpHeight * -2f * Gravity);
 
@@ -363,7 +375,7 @@ namespace StarterAssets
             Color transparentGreen = new Color(0.0f, 1.0f, 0.0f, 0.35f);
             Color transparentRed = new Color(1.0f, 0.0f, 0.0f, 0.35f);
 
-            if (Grounded) Gizmos.color = transparentGreen;
+            if (_groundedTimeout > 0.0f) Gizmos.color = transparentGreen;
             else Gizmos.color = transparentRed;
 
             // when selected, draw a gizmo in the position of, and matching radius of, the grounded collider
