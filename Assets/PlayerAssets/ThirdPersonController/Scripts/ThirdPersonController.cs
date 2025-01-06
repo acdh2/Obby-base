@@ -61,6 +61,13 @@ namespace StarterAssets
         [Tooltip("What layers the character uses as ground")]
         public LayerMask GroundLayers;
 
+        [Tooltip("Force added by trampolines")]
+        public float TrampolineVelocity = 30f;
+
+        [Tooltip("Cooldown time for trampolines")]
+        public float TrampolineCooldown = 1f;
+        private float _trampolineDebounce = 0f;
+
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
         public GameObject CinemachineCameraTarget;
@@ -115,6 +122,8 @@ namespace StarterAssets
         private bool _hasAnimator;
 
         private bool _jumpWasPressed = false;
+
+        private bool _isOnIce = false;
 
         private bool IsCurrentDeviceMouse
         {
@@ -182,21 +191,39 @@ namespace StarterAssets
 
         private void GroundedCheck()
         {
+            _trampolineDebounce -= Time.deltaTime;
+
             // set sphere position, with offset
             Vector3 spherePosition = new Vector3(transform.position.x, transform.position.y - GroundedOffset,
                 transform.position.z);
-            bool grounded = Physics.CheckSphere(spherePosition, GroundedRadius, GroundLayers,
-                QueryTriggerInteraction.Ignore);
 
-            if (grounded) {
+            // Perform an OverlapSphere to check for colliders within the sphere radius
+            Collider[] hitColliders = Physics.OverlapSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
+
+            bool grounded = false;
+            _isOnIce = false;
+
+            foreach (var collider in hitColliders)
+            {
+                if (collider.CompareTag("Ice"))
+                {
+                    _isOnIce = true;
+                }
+                if (collider.CompareTag("Trampoline") && _trampolineDebounce <= 0f)
+                {
+                    _verticalVelocity = TrampolineVelocity;
+                    _trampolineDebounce += TrampolineCooldown;
+                }
+                grounded = true;
                 _groundedTimeout = JumpDetectionTimeout;
-            }
+            }                
 
             // update animator if using character
             if (_hasAnimator)
             {
                 _animator.SetBool(_animIDGrounded, grounded);
             }
+            
         }
 
         private void CameraRotation()
@@ -236,6 +263,7 @@ namespace StarterAssets
 
             float speedOffset = 0.1f;
             float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
+            float modifiedSpeedChangeRate = _isOnIce?SpeedChangeRate*0.05f:SpeedChangeRate;
 
             // accelerate or decelerate to target speed
             if (currentHorizontalSpeed < targetSpeed - speedOffset ||
@@ -244,7 +272,7 @@ namespace StarterAssets
                 // creates curved result rather than a linear one giving a more organic speed change
                 // note T in Lerp is clamped, so we don't need to clamp our speed
                 _speed = Mathf.Lerp(currentHorizontalSpeed, targetSpeed * inputMagnitude,
-                    Time.deltaTime * SpeedChangeRate);
+                    Time.deltaTime * modifiedSpeedChangeRate);
 
                 // round speed to 3 decimal places
                 _speed = Mathf.Round(_speed * 1000f) / 1000f;
@@ -254,7 +282,7 @@ namespace StarterAssets
                 _speed = targetSpeed;
             }
 
-            _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+            _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * modifiedSpeedChangeRate);
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
             // normalise input direction
