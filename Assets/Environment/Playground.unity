@@ -332,12 +332,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 336097742}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: -5.786477, y: 0.5004997, z: 5.13}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1327619677}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &353661111
 GameObject:
@@ -640,7 +640,7 @@ GameObject:
   - component: {fileID: 1066904417}
   - component: {fileID: 1066904416}
   m_Layer: 0
-  m_Name: Cube
+  m_Name: Ice
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -725,12 +725,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1066904415}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 5.08286, y: 0.18174428, z: 8.677303}
   m_LocalScale: {x: 4.2264, y: 0.36249, z: 6.3593454}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1327619677}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &1221041499
 PrefabInstance:
@@ -854,6 +854,8 @@ Transform:
   - {fileID: 1631947177}
   - {fileID: 353661115}
   - {fileID: 1835208005}
+  - {fileID: 1066904419}
+  - {fileID: 336097746}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1327619678
@@ -4182,5 +4184,3 @@ SceneRoots:
   - {fileID: 1327619677}
   - {fileID: 3893294199639930361}
   - {fileID: 300590916}
-  - {fileID: 1066904419}
-  - {fileID: 336097746}
