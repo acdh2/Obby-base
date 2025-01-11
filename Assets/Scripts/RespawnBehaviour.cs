@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Cinemachine;
 using Unity.VisualScripting;
+using StarterAssets;
 
 public class RespawnBehaviour : MonoBehaviour
 {
@@ -84,13 +85,23 @@ public class RespawnBehaviour : MonoBehaviour
         }
     }
 
+    System.Collections.IEnumerator Death() {
+        //Respawn();
+        GetComponent<Animator>().SetTrigger("Dead");
+        GetComponent<ThirdPersonController>().isEnabled = false;
+        yield return new WaitForSeconds(0.5f);
+        GetComponent<Animator>().SetTrigger("Respawn");
+        GetComponent<ThirdPersonController>().isEnabled = true;
+        Respawn();
+    }
+
     void OnControllerColliderHit(ControllerColliderHit hit)
     {
         if (hit.collider.CompareTag("Spawn")) {
             SetRespawnPoint(hit.gameObject);
         }
         if (hit.collider.CompareTag("Lava")) {
-            Respawn();
+            StartCoroutine(Death());
         }
     }
 }

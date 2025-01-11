@@ -137,6 +137,8 @@ namespace StarterAssets
             }
         }
 
+        public bool isEnabled = true;
+
 
         private void Awake()
         {
@@ -170,9 +172,9 @@ namespace StarterAssets
         {
             _hasAnimator = TryGetComponent(out _animator);
 
-            JumpAndGravity();
-            GroundedCheck();
-            Move();
+            if (isEnabled) JumpAndGravity();
+            if (isEnabled) GroundedCheck();
+            if (isEnabled) Move();
         }
 
         private void LateUpdate()
