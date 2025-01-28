@@ -68,6 +68,9 @@ namespace StarterAssets
         public float TrampolineCooldown = 1f;
         private float _trampolineDebounce = 0f;
 
+        [Tooltip("How much speed conveyors give")]
+        public float ConveyorSpeed = 1.8f;
+
         [Header("Cinemachine")]
         [Tooltip("The follow target set in the Cinemachine Virtual Camera that the camera will follow")]
         public GameObject CinemachineCameraTarget;
@@ -97,6 +100,7 @@ namespace StarterAssets
         private float _targetRotation = 0.0f;
         private float _rotationVelocity;
         private float _verticalVelocity;
+
         private float _terminalVelocity = 53.0f;
 
         // timeout deltatime
@@ -122,8 +126,6 @@ namespace StarterAssets
         private bool _hasAnimator;
 
         private bool _jumpWasPressed = false;
-
-        private bool _isOnIce = false;
 
         private bool IsCurrentDeviceMouse
         {
@@ -203,13 +205,14 @@ namespace StarterAssets
             Collider[] hitColliders = Physics.OverlapSphere(spherePosition, GroundedRadius, GroundLayers, QueryTriggerInteraction.Ignore);
 
             bool grounded = false;
-            _isOnIce = false;
+
+            Vector3 _forwardVelocity = Vector3.zero;
 
             foreach (var collider in hitColliders)
             {
-                if (collider.CompareTag("Ice"))
+                if (collider.CompareTag("Conveyor"))
                 {
-                    _isOnIce = true;
+                    _forwardVelocity += collider.gameObject.transform.forward * ConveyorSpeed;
                 }
                 if (collider.CompareTag("Trampoline") && _trampolineDebounce <= 0f)
                 {
@@ -218,7 +221,13 @@ namespace StarterAssets
                 }
                 grounded = true;
                 _groundedTimeout = JumpDetectionTimeout;
-            }                
+            }               
+
+            if (_forwardVelocity.magnitude > 0.1f) {
+                _controller.enabled = false;
+                _controller.transform.position += _forwardVelocity * Time.deltaTime * ConveyorSpeed;
+                _controller.enabled = true;
+            }
 
             // update animator if using character
             if (_hasAnimator)
@@ -265,7 +274,7 @@ namespace StarterAssets
 
             float speedOffset = 0.1f;
             float inputMagnitude = _input.analogMovement ? _input.move.magnitude : 1f;
-            float modifiedSpeedChangeRate = _isOnIce?SpeedChangeRate*0.05f:SpeedChangeRate;
+            float modifiedSpeedChangeRate = SpeedChangeRate;
 
             // accelerate or decelerate to target speed
             if (currentHorizontalSpeed < targetSpeed - speedOffset ||
@@ -307,8 +316,11 @@ namespace StarterAssets
             Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
+            
+    
             _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
-                             new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
+                             new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime
+                            );
 
             // update animator if using character
             if (_hasAnimator)

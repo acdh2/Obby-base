@@ -7,8 +7,8 @@ TagManager:
   - CinemachineTarget
   - Lava
   - Spawn
-  - Ice
   - Trampoline
+  - Conveyor
   layers:
   - Default
   - TransparentFX

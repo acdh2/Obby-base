@@ -41,7 +41,11 @@ Shader "Unlit/Spawn"
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+
+                o.uv = mul(unity_ObjectToWorld, v.vertex + float3(0.5, 0.5, 0.5)).xz;
+
+                //o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+
                 o.normal = v.normal;
                 UNITY_TRANSFER_FOG(o,o.vertex);
                 return o;
