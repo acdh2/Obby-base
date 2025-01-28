@@ -951,7 +951,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: f4360b9c6bf744ff68ba6fa6da22e2ee, type: 3}
       propertyPath: m_Name
-      value: R15
+      value: R15CharacterRig
       objectReference: {fileID: 0}
     - target: {fileID: 2727244103597156993, guid: f4360b9c6bf744ff68ba6fa6da22e2ee, type: 3}
       propertyPath: m_Materials.Array.data[0]
