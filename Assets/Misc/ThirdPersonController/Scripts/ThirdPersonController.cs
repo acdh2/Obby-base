@@ -1,4 +1,5 @@
 ﻿using System.Runtime.InteropServices;
+using Unity.VisualScripting;
 using UnityEngine;
 #if ENABLE_INPUT_SYSTEM 
 using UnityEngine.InputSystem;
@@ -210,6 +211,10 @@ namespace StarterAssets
 
             foreach (var collider in hitColliders)
             {
+                foreach (UnityEventTrigger trigger in collider.gameObject.GetComponents<UnityEventTrigger>()) {
+                    trigger.OnPlayerCollides();
+                }
+
                 if (collider.CompareTag("Conveyor"))
                 {
                     _forwardVelocity += collider.gameObject.transform.forward * ConveyorSpeed;
