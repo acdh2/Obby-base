@@ -140,8 +140,13 @@ namespace StarterAssets
             }
         }
 
-        public bool isEnabled = true;
 
+        private bool isEnabled = true;
+
+
+        public void SetControlEnabled(bool enable) {
+            isEnabled = enable;
+        }
 
         private void Awake()
         {

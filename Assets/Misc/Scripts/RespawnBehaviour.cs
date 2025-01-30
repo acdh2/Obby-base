@@ -88,10 +88,10 @@ public class RespawnBehaviour : MonoBehaviour
     System.Collections.IEnumerator Death() {
         //Respawn();
         GetComponent<Animator>().SetTrigger("Dead");
-        GetComponent<ThirdPersonController>().isEnabled = false;
+        GetComponent<ThirdPersonController>().SetControlEnabled(false);
         yield return new WaitForSeconds(1.0f);
         GetComponent<Animator>().SetTrigger("Respawn");
-        GetComponent<ThirdPersonController>().isEnabled = true;
+        GetComponent<ThirdPersonController>().SetControlEnabled(true);
         Respawn();
     }
 
