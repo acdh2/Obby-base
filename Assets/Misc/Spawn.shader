@@ -42,7 +42,16 @@ Shader "Unlit/Spawn"
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
 
-                o.uv = mul(unity_ObjectToWorld, v.vertex + float3(0.5, 0.5, 0.5)).xz;
+                //o.uv = v.uv;//mul(unity_ObjectToWorld, v.vertex + float3(0.5, 0.5, 0.5)).xz;
+                // Extract object scale from unity_ObjectToWorld matrix
+                float3 scaleX = float3(unity_ObjectToWorld._m00, unity_ObjectToWorld._m10, unity_ObjectToWorld._m20);
+                float3 scaleZ = float3(unity_ObjectToWorld._m02, unity_ObjectToWorld._m12, unity_ObjectToWorld._m22);
+
+                float scaleXLength = -length(scaleX);
+                float scaleZLength = -length(scaleZ);
+
+                // Scale the UVs accordingly
+                o.uv = v.uv * float2(scaleXLength, scaleZLength);                
 
                 //o.uv = TRANSFORM_TEX(v.uv, _MainTex);
 
